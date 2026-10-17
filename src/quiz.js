@@ -30,17 +30,72 @@ function calculatePercentage(score, total) {
 }
 
 /**
+ * Formats the remaining quiz time for display.
+ */
+function formatTimeLeft(seconds) {
+  return `⏱ ${seconds}s`;
+}
+
+/**
+ * Returns the feedback shown after an answer is submitted.
+ */
+function getFeedbackMessage(isCorrectAnswer, timedOut = false) {
+  if (timedOut) return "Time's up!";
+  if (isCorrectAnswer) return "Correct!";
+  return "Not quite. The correct answer is highlighted.";
+}
+
+/**
  * Turns a percentage into a grade.
  * A = 90% or more, B = 75% or more, C = 50% or more.
  */
 function getGrade(percentage) {
-  if (percentage > 90) return "A";
-  if (percentage > 75) return "B";
-  if (percentage > 50) return "C";
+  if (percentage >= 90) return "A";
+  if (percentage >= 75) return "B";
+  if (percentage >= 50) return "C";
   return "Keep practicing";
+}
+
+/**
+ * Creates the initial quiz state without changing the supplied questions.
+ */
+function createQuiz(questions) {
+  return { questions: [...questions], current: 0, score: 0 };
+}
+
+/**
+ * Records an answer and advances to the next question without changing state.
+ */
+function answerQuestion(state, selectedIndex) {
+  const correct = isCorrect(state.questions[state.current], selectedIndex);
+  return {
+    state: {
+      ...state,
+      current: state.current + 1,
+      score: state.score + (correct ? 1 : 0),
+    },
+    correct,
+  };
+}
+
+/**
+ * Returns true after the state has advanced past its final question.
+ */
+function isQuizFinished(state) {
+  return state.current >= state.questions.length;
 }
 
 // Lets Node.js tests load this file. Browsers ignore this block.
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { shuffle, isCorrect, calculatePercentage, getGrade };
+  module.exports = {
+    shuffle,
+    isCorrect,
+    calculatePercentage,
+    formatTimeLeft,
+    getFeedbackMessage,
+    getGrade,
+    createQuiz,
+    answerQuestion,
+    isQuizFinished,
+  };
 }
